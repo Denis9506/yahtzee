@@ -247,9 +247,17 @@ function setupGameListeners() {
             const tr = this.closest('tr');
             const cat = tr.getAttribute('data-category');
 
-            if (scores[currentPlayer][cat] !== undefined) return;
+            let score;
+            if (scores[currentPlayer][cat] !== undefined) {
+                if (cat === 'yahtzee' && scores[currentPlayer][cat] > 0 && calcScore('yahtzee', diceValues) === 50) {
+                    score = scores[currentPlayer][cat] + 100;
+                } else {
+                    return;
+                }
+            } else {
+                score = calcScore(cat, diceValues);
+            }
 
-            const score = calcScore(cat, diceValues);
             scores[currentPlayer][cat] = score;
 
             this.textContent = score;
@@ -393,7 +401,7 @@ function calcScore(category, values) {
         case 'sixes': return counts[6] * 6;
         case 'threeOfAKind': return hasN(3) ? sum : 0;
         case 'fourOfAKind': return hasN(4) ? sum : 0;
-        case 'fullHouse': return (hasN(3) && counts.filter(c => c > 0).length === 2) || hasN(5) ? 25 : 0;
+        case 'fullHouse': return (counts.includes(3) && counts.includes(2)) ? 25 : 0;
         case 'smallStraight':
             const uStr = [...new Set(values)].sort().join('');
             return (uStr.includes('1234') || uStr.includes('2345') || uStr.includes('3456')) ? 30 : 0;
@@ -411,19 +419,28 @@ function showPotentials() {
     if (!hasRolled || currentPlayer !== myPlayerId) return;
 
     categories.forEach(cat => {
+        const cell = document.querySelector(`tr[data-category="${cat}"] .p${currentPlayer}-cell`);
+        if (!cell) return;
+
         if (scores[currentPlayer][cat] === undefined) {
-            const cell = document.querySelector(`tr[data-category="${cat}"] .p${currentPlayer}-cell`);
-            if (cell) {
-                cell.textContent = calcScore(cat, diceValues);
-                cell.classList.add('potential');
-            }
+            cell.textContent = calcScore(cat, diceValues);
+            cell.classList.add('potential');
+        } else if (cat === 'yahtzee' && scores[currentPlayer][cat] > 0 && calcScore('yahtzee', diceValues) === 50) {
+            cell.textContent = scores[currentPlayer][cat] + 100;
+            cell.classList.add('potential');
         }
     });
 }
 
 function clearPotentials() {
     document.querySelectorAll('.score-cell.potential').forEach(cell => {
-        cell.textContent = '';
+        const player = parseInt(cell.getAttribute('data-player'));
+        const cat = cell.closest('tr').getAttribute('data-category');
+        if (scores[player][cat] !== undefined) {
+            cell.textContent = scores[player][cat];
+        } else {
+            cell.textContent = '';
+        }
         cell.classList.remove('potential');
     });
 }
@@ -551,6 +568,11 @@ function resetGameInternal() {
 
 function switchPlayer() {
     currentPlayer = currentPlayer === 1 ? 2 : 1;
+    
+    if (Object.keys(scores[currentPlayer]).length === 13) {
+        currentPlayer = currentPlayer === 1 ? 2 : 1;
+    }
+
     rollsLeft = 3;
     hasRolled = false;
 

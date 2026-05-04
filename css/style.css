@@ -514,10 +514,10 @@ body {
     }
 
     .dice-container {
-        gap: 15px;
+        gap: 25px;
         flex-wrap: wrap;
         justify-content: center;
-        max-width: 250px;
+        max-width: 280px;
     }
 
     .score-section {
@@ -527,16 +527,24 @@ body {
 
     .score-table {
         width: 100%;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .score-table th,
     .score-table td {
-        padding: 6px 4px;
+        padding: 8px 5px;
     }
 
     .cat-name {
-        font-size: 12px;
+        font-size: 13px;
+    }
+
+    .edit-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        bottom: 15px;
+        right: 15px;
     }
 
     .modal-content {
