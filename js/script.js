@@ -12,7 +12,7 @@ let diceValues = [1, 1, 1, 1, 1];
 let heldDice = [false, false, false, false, false];
 
 let rollsLeft = 3;
-let currentPlayer = 1;
+let currentPlayer = 0;
 let hasRolled = false;
 
 let p1Name = "Player 1";
@@ -181,6 +181,7 @@ function handleNetworkData(data) {
             break;
         case 'START_PLAYER':
             currentPlayer = payload.startPlayer;
+            console.log(`Game is starting. Starting player: Player ${currentPlayer}`);
             if (!gameStarted) {
                 gameStarted = true;
                 document.getElementById('name-modal').classList.add('hidden');
@@ -202,6 +203,9 @@ function handleNetworkData(data) {
             break;
         case 'DISCONNECT':
             handleDisconnect();
+            break;
+        case 'SURRENDER':
+            triggerSurrender(payload.player);
             break;
     }
 }
@@ -240,6 +244,7 @@ function checkStartGame() {
 
         if (isHost) {
             const startPlayer = Math.random() < 0.5 ? 1 : 2;
+            console.log(`[Host] Game Start: Randomly selected Player ${startPlayer} to go first.`);
             currentPlayer = startPlayer;
             sendData('START_PLAYER', { startPlayer });
             updatePlayerUI();
@@ -351,13 +356,18 @@ function triggerTimeUpEnd() {
 }
 
 function updatePlayerUI() {
-    currentPlayerNameSpan.textContent = currentPlayer === 1 ? p1Name : p2Name;
     if (currentPlayer === 1) {
+        currentPlayerNameSpan.textContent = p1Name;
         p1Header.classList.add('active-player');
         p2Header.classList.remove('active-player');
-    } else {
+    } else if (currentPlayer === 2) {
+        currentPlayerNameSpan.textContent = p2Name;
         p2Header.classList.add('active-player');
         p1Header.classList.remove('active-player');
+    } else {
+        currentPlayerNameSpan.textContent = "Waiting...";
+        p1Header.classList.remove('active-player');
+        p2Header.classList.remove('active-player');
     }
     p1Header.textContent = p1Name;
     p2Header.textContent = p2Name;
@@ -371,6 +381,15 @@ function updatePlayerUI() {
     clearPotentials();
     if (gameStarted && currentPlayer === myPlayerId) {
         showPotentials();
+    }
+
+    const surrenderContainer = document.getElementById('surrender-container');
+    if (surrenderContainer) {
+        if (gameStarted) {
+            surrenderContainer.classList.remove('hidden');
+        } else {
+            surrenderContainer.classList.add('hidden');
+        }
     }
 }
 
@@ -514,8 +533,14 @@ function checkGameOver() {
     }
 }
 
-function showGameOverModal(isEarlyDisconnect, isTimeUp = false) {
+function showGameOverModal(isEarlyDisconnect, isTimeUp = false, surrenderedPlayerId = 0) {
     clearInterval(turnTimerInterval);
+    const surrenderContainer = document.getElementById('surrender-container');
+    if (surrenderContainer) {
+        surrenderContainer.classList.add('hidden');
+        const confirmBox = document.getElementById('surrender-confirm-box');
+        if (confirmBox) confirmBox.classList.remove('show');
+    }
     setTimeout(() => {
         const p1Total = parseInt(document.querySelector('.p1-total').textContent) || 0;
         const p2Total = parseInt(document.querySelector('.p2-total').textContent) || 0;
@@ -539,6 +564,10 @@ function showGameOverModal(isEarlyDisconnect, isTimeUp = false) {
             playAgainBtn.textContent = "Exit Game";
         } else if (isTimeUp) {
             title.textContent = "Time's Up! ⏰";
+        } else if (surrenderedPlayerId !== 0) {
+            const surrenderedName = surrenderedPlayerId === 1 ? p1Name : p2Name;
+            const winnerName = surrenderedPlayerId === 1 ? p2Name : p1Name;
+            title.textContent = `${surrenderedName} surrendered! ${winnerName} Wins! 🏳️`;
         } else {
             if (p1Total > p2Total) title.textContent = `${p1Name} Wins! 🎉`;
             else if (p2Total > p1Total) title.textContent = `${p2Name} Wins! 🎉`;
@@ -570,6 +599,7 @@ function checkRestart() {
     if (p1Ready && p2Ready) {
         if (isHost) {
             const startPlayer = Math.random() < 0.5 ? 1 : 2;
+            console.log(`[Host] Restart Game: Randomly selected Player ${startPlayer} to go first.`);
             sendData('RESTART_GAME', { startPlayer });
             resetGameInternal(startPlayer);
         }
@@ -577,6 +607,7 @@ function checkRestart() {
 }
 
 function resetGameInternal(startPlayer) {
+    console.log(`Game is resetting. Starting player: Player ${startPlayer}`);
     scores[1] = {};
     scores[2] = {};
     currentPlayer = startPlayer;
@@ -634,4 +665,34 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
+function setupSurrenderListeners() {
+    const surrenderBtn = document.getElementById('surrender-btn');
+    const confirmBox = document.getElementById('surrender-confirm-box');
+    const confirmYes = document.getElementById('surrender-confirm-yes');
+    const confirmNo = document.getElementById('surrender-confirm-no');
+
+    if (!surrenderBtn || !confirmBox || !confirmYes || !confirmNo) return;
+
+    surrenderBtn.addEventListener('click', () => {
+        confirmBox.classList.add('show');
+    });
+
+    confirmNo.addEventListener('click', () => {
+        confirmBox.classList.remove('show');
+    });
+
+    confirmYes.addEventListener('click', () => {
+        confirmBox.classList.remove('show');
+        if (conn && conn.open) {
+            sendData('SURRENDER', { player: myPlayerId });
+        }
+        triggerSurrender(myPlayerId);
+    });
+}
+
+function triggerSurrender(playerId) {
+    showGameOverModal(false, false, playerId);
+}
+
+setupSurrenderListeners();
 initNetwork();

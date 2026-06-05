@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yahtzee Multiplayer</title>
+    <title>🎲 Yahtzee Multiplayer</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
+
     <!-- Montserrat Font -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <!-- PeerJS -->
@@ -11,33 +15,59 @@
     <!-- CSS File -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="game-wrapper">
         <div class="dice-section">
             <div class="dice-container">
                 <div class="dice-wrapper">
                     <div class="dice" data-index="0">
-                        <div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face right"></div><div class="face left"></div>
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
                     </div>
                 </div>
                 <div class="dice-wrapper">
                     <div class="dice" data-index="1">
-                        <div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face right"></div><div class="face left"></div>
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
                     </div>
                 </div>
                 <div class="dice-wrapper">
                     <div class="dice" data-index="2">
-                        <div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face right"></div><div class="face left"></div>
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
                     </div>
                 </div>
                 <div class="dice-wrapper">
                     <div class="dice" data-index="3">
-                        <div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face right"></div><div class="face left"></div>
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
                     </div>
                 </div>
                 <div class="dice-wrapper">
                     <div class="dice" data-index="4">
-                        <div class="face front"></div><div class="face back"></div><div class="face top"></div><div class="face bottom"></div><div class="face right"></div><div class="face left"></div>
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
                     </div>
                 </div>
             </div>
@@ -101,7 +131,9 @@
                     </tr>
                 </tbody>
                 <tbody id="lower-section">
-                    <tr><td colspan="3" class="bonus-hint">Bonus : ones - sixes are over 63 points</td></tr>
+                    <tr>
+                        <td colspan="3" class="bonus-hint">Bonus : ones - sixes are over 63 points</td>
+                    </tr>
                     <tr data-category="threeOfAKind">
                         <td class="cat-name">Three of kind</td>
                         <td class="p1-cell score-cell" data-player="1"></td>
@@ -153,8 +185,11 @@
             <h2 id="connection-title">Starting Network...</h2>
             <div id="connection-link-container" class="hidden">
                 <p style="margin-bottom: 10px; font-weight: bold; color: #4a3b3b;">Share this link with Player 2:</p>
-                <input type="text" id="share-link" readonly style="width: 100%; padding: 10px; text-align: center; margin-bottom: 15px; border: 2px solid #ffdae0; border-radius: 8px; font-family: 'Montserrat', sans-serif;">
-                <button id="copy-link-btn" style="background: #e63946; color: white; padding: 10px 20px; border-radius: 8px; font: 700 14px 'Montserrat', sans-serif; cursor: pointer; border: none; margin-bottom: 15px; transition: 0.3s;">Copy Link</button>
+                <input type="text" id="share-link" readonly
+                    style="width: 100%; padding: 10px; text-align: center; margin-bottom: 15px; border: 2px solid #ffdae0; border-radius: 8px; font-family: 'Montserrat', sans-serif;">
+                <button id="copy-link-btn"
+                    style="background: #e63946; color: white; padding: 10px 20px; border-radius: 8px; font: 700 14px 'Montserrat', sans-serif; cursor: pointer; border: none; margin-bottom: 15px; transition: 0.3s;">Copy
+                    Link</button>
                 <p style="color: #4a3b3b;">Waiting for Player 2 to join...</p>
             </div>
             <div id="joining-container" class="hidden">
@@ -192,7 +227,18 @@
         </div>
     </div>
 
+    <!-- Surrender Button -->
+    <div id="surrender-container" class="surrender-container hidden">
+        <button id="surrender-btn" class="surrender-btn">🏳️</button>
+        <div id="surrender-confirm-box" class="surrender-confirm-box">
+            <span class="confirm-text">Surrender?</span>
+            <button id="surrender-confirm-yes" class="confirm-btn yes-btn">Yes</button>
+            <button id="surrender-confirm-no" class="confirm-btn no-btn">No</button>
+        </div>
+    </div>
+
     <!-- JS File -->
     <script src="js/script.js" type="text/javascript"></script>
 </body>
+
 </html>

@@ -221,7 +221,7 @@ body {
     transition: color 0.3s, background 0.3s, border-color 0.3s;
     font-variant-numeric: tabular-nums;
     text-align: center;
-    width: 105px;
+    /*width: 105px;*/
     cursor: pointer;
     user-select: none;
 }
@@ -570,4 +570,123 @@ body {
     #share-link {
         font-size: 12px;
     }
+
+    .surrender-container {
+        bottom: 15px;
+        left: 15px;
+    }
+
+    .surrender-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .surrender-confirm-box {
+        padding: 4px 8px;
+        gap: 6px;
+    }
+
+    .confirm-text {
+        font-size: 11px;
+    }
+
+    .confirm-btn {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+}
+
+/* SURRENDER BUTTON */
+.surrender-container {
+    position: fixed;
+    bottom: 5px;
+    left: 10px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.surrender-container.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+}
+
+.surrender-btn {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid rgba(74, 59, 59, 0.2);
+    color: rgba(74, 59, 59, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.surrender-btn:hover {
+    background: rgba(230, 57, 70, 0.1);
+    border-color: rgba(230, 57, 70, 0.5);
+    color: #e63946;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.15);
+}
+
+.surrender-confirm-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff5f5;
+    border: 1.5px solid #e63946;
+    padding: 6px 12px;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(230, 57, 70, 0.15);
+    opacity: 0;
+    transform: translateX(-10px) scale(0.95);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.surrender-confirm-box.show {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+}
+
+.confirm-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e63946;
+    margin-right: 4px;
+}
+
+.confirm-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s ease;
+}
+
+.yes-btn {
+    background: #e63946;
+    color: white;
+}
+
+.yes-btn:hover {
+    background: #d62828;
+}
+
+.no-btn {
+    background: rgba(74, 59, 59, 0.1);
+    color: #4a3b3b;
+}
+
+.no-btn:hover {
+    background: rgba(74, 59, 59, 0.2);
 }
