@@ -176,8 +176,29 @@ function handleNetworkData(data) {
             else p2Ready = true;
             checkRestart();
             break;
+        case 'RESTART_GAME':
+            resetGameInternal(payload.startPlayer);
+            break;
+        case 'START_PLAYER':
+            currentPlayer = payload.startPlayer;
+            if (!gameStarted) {
+                gameStarted = true;
+                document.getElementById('name-modal').classList.add('hidden');
+                const btn = document.getElementById('start-game-btn');
+                btn.textContent = "Save Name";
+                btn.disabled = false;
+            }
+            updatePlayerUI();
+            if (!turnTimerInterval) {
+                startTurnTimer();
+            }
+            break;
         case 'TIME_UP':
             triggerTimeUpEnd();
+            break;
+        case 'ADD_TIME':
+            turnTimeLeft += payload.amount || 60;
+            updateTimerUI();
             break;
         case 'DISCONNECT':
             handleDisconnect();
@@ -212,14 +233,19 @@ function checkStartGame() {
     if (p1NameReady && p2NameReady && !gameStarted) {
         gameStarted = true;
         document.getElementById('name-modal').classList.add('hidden');
-        
+
         const btn = document.getElementById('start-game-btn');
         btn.textContent = "Save Name";
         btn.disabled = false;
 
-        updatePlayerUI();
-        if (!turnTimerInterval) {
-            startTurnTimer();
+        if (isHost) {
+            const startPlayer = Math.random() < 0.5 ? 1 : 2;
+            currentPlayer = startPlayer;
+            sendData('START_PLAYER', { startPlayer });
+            updatePlayerUI();
+            if (!turnTimerInterval) {
+                startTurnTimer();
+            }
         }
     }
 }
@@ -269,6 +295,16 @@ function setupGameListeners() {
             checkGameOver();
         });
     });
+
+    const timerDisplay = document.getElementById('turn-timer');
+    if (timerDisplay) {
+        timerDisplay.addEventListener('click', () => {
+            if (!gameStarted || turnTimeLeft <= 0) return;
+            turnTimeLeft += 60;
+            updateTimerUI();
+            sendData('ADD_TIME', { amount: 60 });
+        });
+    }
 }
 
 function startTurnTimer() {
@@ -326,14 +362,14 @@ function updatePlayerUI() {
     p1Header.textContent = p1Name;
     p2Header.textContent = p2Name;
 
-    if (currentPlayer === myPlayerId && rollsLeft > 0) {
+    if (gameStarted && currentPlayer === myPlayerId && rollsLeft > 0) {
         rollBtn.disabled = false;
     } else {
         rollBtn.disabled = true;
     }
 
     clearPotentials();
-    if (currentPlayer === myPlayerId) {
+    if (gameStarted && currentPlayer === myPlayerId) {
         showPotentials();
     }
 }
@@ -519,7 +555,7 @@ document.getElementById('play-again-btn').addEventListener('click', () => {
         window.location.href = window.location.pathname;
         return;
     }
-    
+
     btn.textContent = "Waiting for other player...";
     btn.disabled = true;
 
@@ -532,14 +568,18 @@ document.getElementById('play-again-btn').addEventListener('click', () => {
 
 function checkRestart() {
     if (p1Ready && p2Ready) {
-        resetGameInternal();
+        if (isHost) {
+            const startPlayer = Math.random() < 0.5 ? 1 : 2;
+            sendData('RESTART_GAME', { startPlayer });
+            resetGameInternal(startPlayer);
+        }
     }
 }
 
-function resetGameInternal() {
+function resetGameInternal(startPlayer) {
     scores[1] = {};
     scores[2] = {};
-    currentPlayer = 1; // Always reset to 1 for sync predictability
+    currentPlayer = startPlayer;
     rollsLeft = 3;
     hasRolled = false;
     diceValues = [1, 1, 1, 1, 1];
@@ -568,7 +608,7 @@ function resetGameInternal() {
 
 function switchPlayer() {
     currentPlayer = currentPlayer === 1 ? 2 : 1;
-    
+
     if (Object.keys(scores[currentPlayer]).length === 13) {
         currentPlayer = currentPlayer === 1 ? 2 : 1;
     }

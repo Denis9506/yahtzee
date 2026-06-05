@@ -219,6 +219,11 @@ body {
     box-shadow: 0 4px 10px rgba(230, 57, 70, 0.2);
     border: 2px solid #e63946;
     transition: color 0.3s, background 0.3s, border-color 0.3s;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    width: 105px;
+    cursor: pointer;
+    user-select: none;
 }
 
 .timer-display.warning {
